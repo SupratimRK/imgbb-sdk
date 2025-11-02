@@ -1,7 +1,7 @@
 # 🖼️ imgbb-sdk
 
 [![PyPI version](https://img.shields.io/pypi/v/imgbb-sdk.svg)](https://pypi.org/project/imgbb-sdk/)
-[![Python versions](https://img.shields.io/pypi/pyversions/imgbb-sdk.svg)](https://pypi.org/project/imgbb-sdk/)
+[![Python versions](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Tests](https://github.com/SupratimRK/imgbb-sdk/workflows/Tests/badge.svg)](https://github.com/SupratimRK/imgbb-sdk/actions)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
