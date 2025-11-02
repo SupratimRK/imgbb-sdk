@@ -4,7 +4,6 @@
 [![Python versions](https://img.shields.io/pypi/pyversions/imgbb-sdk.svg)](https://pypi.org/project/imgbb-sdk/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Tests](https://github.com/SupratimRK/imgbb-sdk/workflows/Tests/badge.svg)](https://github.com/SupratimRK/imgbb-sdk/actions)
-[![codecov](https://codecov.io/gh/SupratimRK/imgbb-sdk/branch/main/graph/badge.svg)](https://codecov.io/gh/SupratimRK/imgbb-sdk)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 > **Modern, lightweight Python library for uploading images to ImgBB API with full type hints support**

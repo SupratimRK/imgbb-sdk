@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "imgbb-sdk"
-version = "2.0.0"
+version = "2.1.0"
 description = "Modern, lightweight Python library for uploading images to ImgBB API with full type hints support"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -37,6 +37,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Internet :: WWW/HTTP",
     "Typing :: Typed"
@@ -73,12 +74,14 @@ imgbb_sdk = ["py.typed"]
 
 [tool.black]
 line-length = 100
-target-version = ['py39', 'py310', 'py311', 'py312']
+target-version = ['py39', 'py310', 'py311', 'py312', 'py313']
 include = '\.pyi?$'
 
 [tool.ruff]
 line-length = 100
 target-version = "py39"
+
+[tool.ruff.lint]
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
@@ -115,8 +118,7 @@ addopts = [
     "--strict-config",
     "--cov=imgbb_sdk",
     "--cov-report=term-missing",
-    "--cov-report=html",
-    "--cov-report=xml"
+    "--cov-report=html"
 ]
 markers = [
     "integration: marks tests as integration tests (deselect with '-m \"not integration\"')",

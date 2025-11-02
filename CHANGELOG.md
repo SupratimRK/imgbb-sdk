@@ -5,16 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.0] - 2025-11-03
+## [2.1.0] - 2025-11-03
+
+### Added
+- Support for Python 3.13
+- Updated CI/CD pipeline to test on Python 3.9-3.13
+- Added Python 3.13 classifier to package metadata
 
 ### Changed
-- **MINOR**: Increased minimum Python version requirement from 3.8 to 3.9
+- Updated Black target version to include Python 3.13
+
+## [2.0.0] - 2025-11-03
+
+### Changed
+- **BREAKING**: Increased minimum Python version requirement from 3.8 to 3.9
+- Removed Codecov integration entirely from CI/CD pipeline
 - Updated CI/CD pipeline to test on Python 3.9-3.12
 - Improved type annotations for file-like object handling to resolve Pylance type checking issues
 
 ### Fixed
 - Type checking errors in Pylance/VS Code for file-like object attribute access
 - Proper type casting for IO objects in image data preparation
+
+### Removed
+- Codecov badge from README.md
+- Codecov upload step from GitHub Actions workflow
+- XML coverage report generation (keeping HTML and terminal reports for local development)
 
 ## [1.0.0] - 2025-11-03
 
@@ -91,10 +107,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version History
 
-### [1.1.0] - 2025-11-03
-Minor version update with bug fixes and improvements.
+### [2.1.0] - 2025-11-03
+Minor version update adding support for newer Python versions.
+- Added support for Python 3.13
+- Updated CI/CD pipeline to test on Python 3.9-3.13
+
+### [2.0.0] - 2025-11-03
+Major version update with breaking changes and improvements.
+- Increased minimum Python version requirement from 3.8 to 3.9
+- Removed Codecov integration entirely
 - Fixed type checking errors in Pylance/VS Code for file-like object attribute access
-- Improved type annotations for file-like object handling to resolve Pylance type checking issues
+- Improved type annotations for file-like object handling
 
 ### [1.0.0] - 2025-11-03
 First stable release with full functionality, comprehensive testing, and documentation.
