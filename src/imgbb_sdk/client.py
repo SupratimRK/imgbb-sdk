@@ -3,10 +3,8 @@ Main client module for ImgBB SDK
 """
 
 import base64
-import os
-from io import BytesIO
 from pathlib import Path
-from typing import BinaryIO, Union
+from typing import IO, BinaryIO, Union, cast
 from urllib.parse import urlparse
 
 import requests
@@ -40,16 +38,14 @@ SUPPORTED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp"}
 def _validate_api_key(key: str) -> None:
     """Validate the API key."""
     if not key or not isinstance(key, str) or not key.strip():
-        raise ImgBBValidationError(
-            "ImgBB API key is required and must be a non-empty string"
-        )
+        raise ImgBBValidationError("ImgBB API key is required and must be a non-empty string")
 
 
 def _validate_expiration(expiration: int) -> None:
     """Validate the expiration parameter."""
     if not isinstance(expiration, int):
         raise ImgBBValidationError("Expiration must be an integer")
-    
+
     if expiration < MIN_EXPIRATION or expiration > MAX_EXPIRATION:
         raise ImgBBValidationError(
             f"Expiration must be a number between {MIN_EXPIRATION} and {MAX_EXPIRATION} seconds"
@@ -84,21 +80,21 @@ def _validate_image_type(image_data: Union[str, bytes, BinaryIO], filename: str 
 def _read_image_file(file_path: str) -> bytes:
     """Read an image file from disk."""
     path = Path(file_path)
-    
+
     if not path.exists():
         raise ImgBBValidationError(f"File not found: {file_path}")
-    
+
     if not path.is_file():
         raise ImgBBValidationError(f"Path is not a file: {file_path}")
-    
+
     file_size = path.stat().st_size
     if file_size > MAX_FILE_SIZE:
         raise ImgBBValidationError(
             f"File size ({file_size} bytes) exceeds maximum allowed size ({MAX_FILE_SIZE} bytes)"
         )
-    
+
     _validate_image_type(b"", str(path))
-    
+
     with open(path, "rb") as f:
         return f.read()
 
@@ -107,7 +103,7 @@ def _prepare_image_data(image: Union[str, bytes, BinaryIO]) -> str:
     """Prepare image data for upload (convert to base64)."""
     image_bytes: bytes
     filename = ""
-    
+
     # Handle different input types
     if isinstance(image, str):
         if _is_url(image):
@@ -122,19 +118,20 @@ def _prepare_image_data(image: Union[str, bytes, BinaryIO]) -> str:
         image_bytes = image
     elif hasattr(image, "read"):
         # File-like object
-        if hasattr(image, "name"):
-            filename = str(getattr(image, "name", ""))
-        image_bytes = image.read()  # type: ignore
-        if hasattr(image, "seek"):
-            image.seek(0)  # type: ignore  # Reset file pointer
+        file_obj = cast(IO[bytes], image)
+        if hasattr(file_obj, "name"):
+            filename = str(getattr(file_obj, "name", ""))
+        image_bytes = file_obj.read()
+        if hasattr(file_obj, "seek"):
+            file_obj.seek(0)  # Reset file pointer
     else:
         raise ImgBBValidationError(
             "Image must be a file path (str), URL (str), bytes, or file-like object"
         )
-    
+
     # Validate image type
     _validate_image_type(image_bytes, filename)
-    
+
     # Convert to base64
     return base64.b64encode(image_bytes).decode("utf-8")
 
@@ -146,7 +143,7 @@ def imgbb_upload(
     expiration: int = 0,
 ) -> ImgBBResponse:
     """Upload an image to ImgBB.
-    
+
     Args:
         key: Your ImgBB API key
         image: The image to upload. Can be:
@@ -157,18 +154,18 @@ def imgbb_upload(
         name: Optional custom name for the uploaded image
         expiration: Optional auto-deletion time in seconds (60-15552000).
                    Set to 0 or omit for permanent storage.
-    
+
     Returns:
         ImgBBResponse: Response from the ImgBB API containing upload information
-    
+
     Raises:
         ImgBBValidationError: If input validation fails
         ImgBBAPIError: If the API returns an error
         ImgBBTimeoutError: If the upload times out
-    
+
     Example:
         >>> from imgbb_sdk import imgbb_upload
-        >>> 
+        >>>
         >>> # Upload from file path
         >>> response = imgbb_upload(
         ...     key="your-api-key",
@@ -177,11 +174,11 @@ def imgbb_upload(
         ...     expiration=3600
         ... )
         >>> print(response["data"]["url"])
-        
+
         >>> # Upload from file object
         >>> with open("image.jpg", "rb") as f:
         ...     response = imgbb_upload(key="your-api-key", image=f)
-        
+
         >>> # Upload from URL
         >>> response = imgbb_upload(
         ...     key="your-api-key",
@@ -190,27 +187,27 @@ def imgbb_upload(
     """
     # Validate inputs
     _validate_api_key(key)
-    
+
     if expiration and expiration != 0:
         _validate_expiration(expiration)
-    
+
     # Prepare the image data
     try:
         image_data = _prepare_image_data(image)
     except ImgBBValidationError:
         raise
     except Exception as e:
-        raise ImgBBValidationError(f"Failed to prepare image data: {str(e)}")
-    
+        raise ImgBBValidationError(f"Failed to prepare image data: {str(e)}") from e
+
     # Prepare the request
     params = {"key": key}
     if expiration and expiration != 0:
         params["expiration"] = str(expiration)
-    
+
     data = {"image": image_data}
     if name:
         data["name"] = name
-    
+
     # Make the API request
     try:
         response = requests.post(
@@ -219,7 +216,7 @@ def imgbb_upload(
             data=data,
             timeout=UPLOAD_TIMEOUT,
         )
-        
+
         # Check for HTTP errors
         if response.status_code != 200:
             error_message = f"ImgBB API error: HTTP {response.status_code}"
@@ -229,16 +226,16 @@ def imgbb_upload(
                     error_message += f": {error_data['error'].get('message', 'Unknown error')}"
             except Exception:
                 error_message += f": {response.text}"
-            
+
             raise ImgBBAPIError(
                 error_message,
                 status_code=response.status_code,
                 response_text=response.text,
             )
-        
+
         # Parse the response
         result = response.json()
-        
+
         # Validate the response structure
         if not result.get("success"):
             raise ImgBBAPIError(
@@ -246,16 +243,16 @@ def imgbb_upload(
                 status_code=response.status_code,
                 response_text=response.text,
             )
-        
-        return result
-        
+
+        return cast(ImgBBResponse, result)
+
     except requests.exceptions.Timeout:
-        raise ImgBBTimeoutError(f"Upload timed out after {UPLOAD_TIMEOUT} seconds")
+        raise ImgBBTimeoutError(f"Upload timed out after {UPLOAD_TIMEOUT} seconds") from None
     except requests.exceptions.RequestException as e:
-        raise ImgBBAPIError(f"Network error: {str(e)}")
+        raise ImgBBAPIError(f"Network error: {str(e)}") from e
     except ImgBBAPIError:
         raise
     except ImgBBTimeoutError:
         raise
     except Exception as e:
-        raise ImgBBAPIError(f"Unexpected error during upload: {str(e)}")
+        raise ImgBBAPIError(f"Unexpected error during upload: {str(e)}") from e

@@ -4,9 +4,11 @@ Install: pip install flask imgbb-sdk
 Run: python flask_example.py
 """
 
-from flask import Flask, request, jsonify, render_template_string
 import os
-from imgbb_sdk import imgbb_upload, ImgBBError
+
+from flask import Flask, jsonify, render_template_string, request
+
+from imgbb_sdk import ImgBBError, imgbb_upload
 
 app = Flask(__name__)
 IMGBB_API_KEY = os.getenv("IMGBB_API_KEY")
@@ -71,21 +73,21 @@ HTML_TEMPLATE = """
         </form>
     </div>
     <div id="result"></div>
-    
+
     <script>
         document.getElementById('uploadForm').onsubmit = async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
             const result = document.getElementById('result');
             result.innerHTML = '<p>Uploading...</p>';
-            
+
             try {
                 const response = await fetch('/upload', {
                     method: 'POST',
                     body: formData
                 });
                 const data = await response.json();
-                
+
                 if (data.success) {
                     result.className = 'result success';
                     result.innerHTML = `
@@ -109,54 +111,59 @@ HTML_TEMPLATE = """
 </html>
 """
 
+
 @app.route("/")
 def index():
     """Render the upload form."""
     return render_template_string(HTML_TEMPLATE)
+
 
 @app.route("/upload", methods=["POST"])
 def upload():
     """Handle image upload."""
     if not IMGBB_API_KEY:
         return jsonify({"error": "IMGBB_API_KEY not configured"}), 500
-    
+
     if "image" not in request.files:
         return jsonify({"error": "No image provided"}), 400
-    
+
     file = request.files["image"]
     if file.filename == "":
         return jsonify({"error": "No file selected"}), 400
-    
+
     # Get optional parameters
     name = request.form.get("name", "")
     expiration = int(request.form.get("expiration", 0))
-    
+
     try:
         # Upload to ImgBB
         response = imgbb_upload(
             key=IMGBB_API_KEY,
             image=file.read(),
             name=name or file.filename or "",
-            expiration=expiration
+            expiration=expiration,
         )
-        
-        return jsonify({
-            "success": True,
-            "url": response["data"]["url"],
-            "display_url": response["data"]["display_url"],
-            "delete_url": response["data"]["delete_url"],
-            "width": response["data"]["width"],
-            "height": response["data"]["height"]
-        })
-    
+
+        return jsonify(
+            {
+                "success": True,
+                "url": response["data"]["url"],
+                "display_url": response["data"]["display_url"],
+                "delete_url": response["data"]["delete_url"],
+                "width": response["data"]["width"],
+                "height": response["data"]["height"],
+            }
+        )
+
     except ImgBBError as e:
         return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__":
     if not IMGBB_API_KEY:
         print("⚠️  Warning: IMGBB_API_KEY environment variable not set")
         print("Set it with: export IMGBB_API_KEY='your-key'")
-    
+
     print("🚀 Starting Flask server...")
     print("📍 Open http://localhost:5000 in your browser")
     app.run(debug=True, port=5000)

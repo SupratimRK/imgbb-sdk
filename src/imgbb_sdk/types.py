@@ -2,24 +2,19 @@
 Type definitions for ImgBB SDK
 """
 
-import sys
-from typing import BinaryIO, Union
-
-if sys.version_info >= (3, 8):
-    from typing import TypedDict
-else:
-    from typing_extensions import TypedDict
+from typing import BinaryIO, TypedDict, Union
 
 
 class ImgBBUploadOptions(TypedDict, total=False):
     """Options for uploading an image to ImgBB.
-    
+
     Attributes:
         key: Your ImgBB API key (required)
         image: The image to upload - can be a file path, file object, bytes, or URL (required)
         name: Optional custom name for the uploaded image
         expiration: Optional auto-deletion time in seconds (60-15552000)
     """
+
     key: str
     image: Union[str, bytes, BinaryIO]
     name: str
@@ -28,7 +23,7 @@ class ImgBBUploadOptions(TypedDict, total=False):
 
 class ImgBBImageInfo(TypedDict):
     """Information about an uploaded image variant.
-    
+
     Attributes:
         filename: The filename of the image
         name: The name of the image
@@ -36,6 +31,7 @@ class ImgBBImageInfo(TypedDict):
         extension: The file extension
         url: The URL to access the image
     """
+
     filename: str
     name: str
     mime: str
@@ -45,7 +41,7 @@ class ImgBBImageInfo(TypedDict):
 
 class ImgBBImageData(TypedDict):
     """Complete data for an uploaded image.
-    
+
     Attributes:
         id: The unique ID of the uploaded image
         title: The title of the image
@@ -62,6 +58,7 @@ class ImgBBImageData(TypedDict):
         medium: Information about the medium-size variant
         delete_url: URL to delete the image
     """
+
     id: str
     title: str
     url_viewer: str
@@ -80,12 +77,13 @@ class ImgBBImageData(TypedDict):
 
 class ImgBBResponse(TypedDict):
     """Response from ImgBB API.
-    
+
     Attributes:
         data: The uploaded image data
         success: Whether the upload was successful
         status: HTTP status code
     """
+
     data: ImgBBImageData
     success: bool
     status: int

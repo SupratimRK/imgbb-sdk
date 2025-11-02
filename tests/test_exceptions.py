@@ -2,8 +2,6 @@
 Tests for exception classes
 """
 
-import pytest
-
 from imgbb_sdk.exceptions import (
     ImgBBAPIError,
     ImgBBError,
@@ -28,11 +26,7 @@ def test_validation_error():
 
 def test_api_error():
     """Test ImgBBAPIError exception with all attributes."""
-    error = ImgBBAPIError(
-        "API error occurred",
-        status_code=403,
-        response_text="Forbidden"
-    )
+    error = ImgBBAPIError("API error occurred", status_code=403, response_text="Forbidden")
     assert str(error) == "API error occurred"
     assert error.status_code == 403
     assert error.response_text == "Forbidden"

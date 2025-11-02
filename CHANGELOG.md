@@ -5,10 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.1.0] - 2025-11-03
 
-### Added
-- Initial release preparation
+### Changed
+- **MINOR**: Increased minimum Python version requirement from 3.8 to 3.9
+- Updated CI/CD pipeline to test on Python 3.9-3.12
+- Improved type annotations for file-like object handling to resolve Pylance type checking issues
+
+### Fixed
+- Type checking errors in Pylance/VS Code for file-like object attribute access
+- Proper type casting for IO objects in image data preparation
 
 ## [1.0.0] - 2025-11-03
 
@@ -48,7 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Integration tests
   - 100% code coverage
 - GitHub Actions CI/CD:
-  - Automated testing on Python 3.8-3.12
+  - Automated testing on Python 3.9-3.12
   - Code quality checks (black, ruff, mypy)
   - Security scanning
   - Automated PyPI publishing on releases
@@ -84,6 +90,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Version History
+
+### [1.1.0] - 2025-11-03
+Minor version update with bug fixes and improvements.
+- Fixed type checking errors in Pylance/VS Code for file-like object attribute access
+- Improved type annotations for file-like object handling to resolve Pylance type checking issues
 
 ### [1.0.0] - 2025-11-03
 First stable release with full functionality, comprehensive testing, and documentation.

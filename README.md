@@ -418,7 +418,7 @@ except ImgBBError as e:
 
 ## 🔧 Requirements
 
-- **Python**: >= 3.8
+- **Python**: >= 3.9
 - **Dependencies**:
   - `requests` >= 2.25.0
   - `typing-extensions` >= 4.0.0 (Python < 3.11)

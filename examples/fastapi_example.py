@@ -4,10 +4,12 @@ Install: pip install fastapi uvicorn imgbb-sdk python-multipart
 Run: python fastapi_example.py
 """
 
-from fastapi import FastAPI, File, UploadFile, Form, HTTPException
-from fastapi.responses import HTMLResponse
 import os
-from imgbb_sdk import imgbb_upload, ImgBBError
+
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.responses import HTMLResponse
+
+from imgbb_sdk import ImgBBError, imgbb_upload
 
 app = FastAPI(title="ImgBB Upload API", version="1.0.0")
 IMGBB_API_KEY = os.getenv("IMGBB_API_KEY")
@@ -60,21 +62,21 @@ HTML_TEMPLATE = """
         </form>
     </div>
     <div id="result"></div>
-    
+
     <script>
         document.getElementById('uploadForm').onsubmit = async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
             const result = document.getElementById('result');
             result.innerHTML = '<p>Uploading...</p>';
-            
+
             try {
                 const response = await fetch('/upload', {
                     method: 'POST',
                     body: formData
                 });
                 const data = await response.json();
-                
+
                 result.className = 'result';
                 result.innerHTML = `
                     <h3>✅ Success!</h3>
@@ -91,39 +93,39 @@ HTML_TEMPLATE = """
 </html>
 """
 
+
 @app.get("/", response_class=HTMLResponse)
 async def index():
     """Render the upload form."""
     return HTML_TEMPLATE
 
+
 @app.post("/upload")
 async def upload_image(
-    file: UploadFile = File(...),
-    name: str = Form(""),
-    expiration: int = Form(0)
+    file: UploadFile = File(...), name: str = Form(""), expiration: int = Form(0)
 ):
     """
     Upload an image to ImgBB.
-    
+
     - **file**: Image file to upload
     - **name**: Optional custom name
     - **expiration**: Auto-deletion time in seconds (0 for permanent)
     """
     if not IMGBB_API_KEY:
         raise HTTPException(status_code=500, detail="IMGBB_API_KEY not configured")
-    
+
     try:
         # Read file contents
         contents = await file.read()
-        
+
         # Upload to ImgBB
         response = imgbb_upload(
             key=IMGBB_API_KEY,
             image=contents,
             name=name or file.filename or "",
-            expiration=expiration
+            expiration=expiration,
         )
-        
+
         return {
             "success": True,
             "url": response["data"]["url"],
@@ -131,32 +133,31 @@ async def upload_image(
             "delete_url": response["data"]["delete_url"],
             "width": response["data"]["width"],
             "height": response["data"]["height"],
-            "size": response["data"]["size"]
+            "size": response["data"]["size"],
         }
-    
+
     except ImgBBError as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
     finally:
         await file.close()
+
 
 @app.get("/health")
 async def health_check():
     """Health check endpoint."""
-    return {
-        "status": "healthy",
-        "api_key_configured": bool(IMGBB_API_KEY)
-    }
+    return {"status": "healthy", "api_key_configured": bool(IMGBB_API_KEY)}
+
 
 if __name__ == "__main__":
     import uvicorn
-    
+
     if not IMGBB_API_KEY:
         print("⚠️  Warning: IMGBB_API_KEY environment variable not set")
         print("Set it with: export IMGBB_API_KEY='your-key'")
-    
+
     print("🚀 Starting FastAPI server...")
     print("📍 Open http://localhost:8000 in your browser")
     print("📚 API docs: http://localhost:8000/docs")
-    
+
     uvicorn.run(app, host="0.0.0.0", port=8000)
